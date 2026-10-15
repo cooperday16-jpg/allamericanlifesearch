@@ -1,5 +1,30 @@
-<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>All American Life Search</title><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="AAL Search"><meta name="theme-color" content="#1a73e8">
-<style>body{font-family:system-ui;max-width:420px;margin:40px auto;padding:0 16px}input,button{font-size:20px;width:100%;padding:12px;margin:8px 0;box-sizing:border-box}button{background:#1a73e8;color:#fff;border:0;border-radius:8px}</style></head>
-<body><h2>All American Life Search</h2><form id="f"><input id="n" type="tel" placeholder="(407) 555-1234" autofocus><button>Search TruePeopleSearch</button></form>
-<script>f.onsubmit=e=>{e.preventDefault();const d=n.value.replace(/\D/g,'').replace(/^1(?=\d{10}$)/,'');if(d.length!==10){alert('Enter a 10-digit number');return}
-const p=`(${d.slice(0,3)})${d.slice(3,6)}-${d.slice(6)}`;window.open('https://www.truepeoplesearch.com/resultphone?phoneno='+encodeURIComponent(p),'_blank')}</script></body></html>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>All American Life Search</title><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="AAL Search"><meta name="theme-color" content="#1a73e8">
+<style>
+body{font-family:system-ui;max-width:440px;margin:0 auto;padding:24px 16px;background:#f6f8fb;color:#111}
+h2{margin:0 0 12px}.tabs{display:flex;gap:8px;margin-bottom:12px}.tabs button{flex:1;background:#e3e8f0;color:#111}
+.tabs button.on{background:#1a73e8;color:#fff}input,button{font-size:18px;width:100%;padding:12px;margin:6px 0;box-sizing:border-box;border-radius:10px;border:1px solid #ccd}
+button{background:#1a73e8;color:#fff;border:0}.row{display:flex;gap:8px}.row button{width:auto;white-space:nowrap;background:#5f6b7a}
+.card{background:#fff;border-radius:12px;padding:12px;margin-top:16px}.item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eee}
+.item a{color:#1a73e8;text-decoration:none;font-size:17px}.item small{color:#888}.clear{background:none;color:#c00;width:auto;padding:4px;font-size:14px}.hide{display:none}
+</style></head><body>
+<h2>All American Life Search</h2>
+<div class="tabs"><button id="tp" class="on">Phone</button><button id="tn">Name</button></div>
+<form id="fp"><div class="row"><input id="n" type="tel" placeholder="(407) 555-1234" autofocus><button type="button" id="paste">Paste</button></div><button>Search</button></form>
+<form id="fn" class="hide"><input id="nm" placeholder="Full name"><input id="ct" placeholder="City, State (optional)"><button>Search</button></form>
+<div class="card"><div class="item"><b>Recent searches</b><button class="clear" id="clr">Clear</button></div><div id="hist"></div></div>
+<script>
+const H='aalHist',get=()=>JSON.parse(localStorage[H]||'[]');
+function save(label,url){let h=get().filter(x=>x.u!==url);h.unshift({l:label,u:url,t:Date.now()});localStorage[H]=JSON.stringify(h.slice(0,20));draw()}
+function draw(){const h=get();hist.innerHTML=h.length?h.map(x=>`<div class="item"><a href="${x.u}" target="_blank">${x.l}</a><small>${new Date(x.t).toLocaleDateString()}</small></div>`).join(''):'<small>No searches yet</small>'}
+function go(label,url){save(label,url);window.open(url,'_blank')}
+tp.onclick=()=>{tp.classList.add('on');tn.classList.remove('on');fp.classList.remove('hide');fn.classList.add('hide')}
+tn.onclick=()=>{tn.classList.add('on');tp.classList.remove('on');fn.classList.remove('hide');fp.classList.add('hide')}
+paste.onclick=async()=>{try{n.value=await navigator.clipboard.readText()}catch(e){alert('Long-press the box and tap Paste')}}
+fp.onsubmit=e=>{e.preventDefault();const d=n.value.replace(/\D/g,'').replace(/^1(?=\d{10}$)/,'');if(d.length!==10){alert('Enter a 10-digit number');return}
+const p=`(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`;go(p,'https://www.truepeoplesearch.com/resultphone?phoneno='+encodeURIComponent(p))}
+fn.onsubmit=e=>{e.preventDefault();const a=nm.value.trim();if(!a){alert('Enter a name');return}const c=ct.value.trim();
+go(a+(c?' – '+c:''),'https://www.truepeoplesearch.com/results?name='+encodeURIComponent(a)+(c?'&citystatezip='+encodeURIComponent(c):''))}
+clr.onclick=()=>{localStorage.removeItem(H);draw()};draw();
+</script></body></html>
